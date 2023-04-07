@@ -1,1 +1,4 @@
 # .gitignore files
+
+Document.md
+.env
