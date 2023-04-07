@@ -2,14 +2,16 @@ version: "3.9"
 services:
   web:
     build: ./app
+    depends_on:
+      - db
+    env_file: .env
     ports:
       - "8080:8000"
     volumes:
       - "./app/src:/app"
   db:
     image: mysql:8.0.32
-    environment:
-      - MYSQL_ROOT_PASSWORD=password
+    env_file: .env
     volumes:
       - data-db:/var/lib/mysql
 
