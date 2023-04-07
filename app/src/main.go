@@ -3,6 +3,8 @@ package main
 import (
     "fmt"
     "net/http"
+
+    _ "mymodule/database"
 )
 
 func handler(writer http.ResponseWriter, r *http.Request) {
