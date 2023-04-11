@@ -72,7 +72,7 @@ func UpdateItem(db *sql.DB, id string, item Item) (newItem Item) {
 
 func DeleteItem(db *sql.DB, id string) (deleteId string) {
 
-    delete, err := db.Prepare("DELETE FROM TestData WHERE id=?")
+    delete, err := db.Prepare("DELETE FROM " + table + " WHERE id=?")
     if err != nil {
         log.Fatal(err)
     }
