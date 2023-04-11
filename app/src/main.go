@@ -1,17 +1,23 @@
 package main
 
 import (
-    "fmt"
-    "net/http"
-
+    "mymodule/controller"
     _ "mymodule/database"
+
+    "github.com/gin-gonic/gin"
 )
 
-func handler(writer http.ResponseWriter, r *http.Request) {
-    fmt.Fprintln(writer, "hello world")
-}
-
 func main() {
-    http.HandleFunc("/", handler)
-    http.ListenAndServe(":8000", nil)
+    router := gin.Default()
+
+    api := router.Group("api/v1")
+    items := api.Group("items")
+    items.GET("", controller.GetItems)
+    items.POST("", controller.PostItems)
+    items.GET("/:id", controller.GetItemByID)
+    items.POST("/:id", controller.PostItemByID)
+    items.DELETE("/:id", controller.DeleteItemByID)
+    items.GET("/search", controller.SearchItem)
+
+    router.Run(":8000")
 }

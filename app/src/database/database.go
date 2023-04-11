@@ -4,11 +4,12 @@ import (
     "log"
     "os"
 	"database/sql"
+
     "github.com/go-sql-driver/mysql"
 )
 
-func init() {
-
+func Connect() (db *sql.DB) {
+    // must close connection !!!
     db_cfg := mysql.Config{
         DBName:    os.Getenv("MYSQL_DATABASE"),
         User:      os.Getenv("MYSQL_USER"),
@@ -22,12 +23,16 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
 
     err = db.Ping()
     if err != nil {
         log.Fatal(err.Error())
-    } 
+    }
 
-    log.Print("success connect database!")
+    return db
+}
+
+func init() {
+    db := Connect()
+	defer db.Close()
 }
