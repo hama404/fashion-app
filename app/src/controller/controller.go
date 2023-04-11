@@ -2,29 +2,54 @@ package controller
 
 import (
     "net/http"
+
+    "mymodule/model"
+    "mymodule/database"
+
     "github.com/gin-gonic/gin"
 )
 
-type item struct {
-    ID     string  `json:"id"`
-    Title  string  `json:"title"`
-    Artist string  `json:"artist"`
-    Price  float64 `json:"price"`
-}
-
-var items = []item{
-    {ID: "1", Title: "Blue Train", Artist: "John Coltrane", Price: 56.99},
-    {ID: "2", Title: "Jeru", Artist: "Gerry Mulligan", Price: 17.99},
-    {ID: "3", Title: "Sarah Vaughan and Clifford Brown", Artist: "Sarah Vaughan", Price: 39.99},
-}
-
 func GetItems(c *gin.Context) {
+    // get all items
+    // connect database
+    db := database.Connect()
+	defer db.Close()
+
+    // db query
+    items := model.SelectAllItems(db)
+
+    // responce
     c.IndentedJSON(http.StatusOK, items)
+}
+
+func PostItems(c *gin.Context) {
+    // post new item
+
+    var item model.Item
+    c.BindJSON(&item)
+
+    // connect database
+    db := database.Connect()
+	defer db.Close()
+
+    // db query
+    newItem := model.InsertItem(db, item)
+
+    // responce
+    c.IndentedJSON(http.StatusCreated, newItem)
 }
 
 func GetItemByID(c *gin.Context) {
     id := c.Param("id")
 
+    // connect database
+    db := database.Connect()
+	defer db.Close()
+
+    // db query
+    items := model.SelectAllItems(db)
+
+    // responce
     for _, item := range items {
         if item.ID == id {
             c.IndentedJSON(http.StatusOK, item)
@@ -35,30 +60,48 @@ func GetItemByID(c *gin.Context) {
 }
 
 func PostItemByID(c *gin.Context) {
-    var newItem item
+    id := c.Param("id")
 
-    if err := c.BindJSON(&newItem); err != nil {
-        return
-    }
+    var item model.Item
+    c.BindJSON(&item)
 
-    items = append(items, newItem)
+    // connect database
+    db := database.Connect()
+	defer db.Close()
+
+    // db query
+    newItem := model.UpdateItem(db,id,item)
+
+    // responce
     c.IndentedJSON(http.StatusCreated, newItem)
 }
 
 func DeleteItemByID(c *gin.Context) {
     id := c.Param("id")
 
-    for _, item := range items {
-        if item.ID == id {
-            c.IndentedJSON(http.StatusOK, item)
-            return
-        }
-    }
-    c.IndentedJSON(http.StatusNotFound, gin.H{"message": "item not found"})
+    // connect database
+    db := database.Connect()
+	defer db.Close()
+
+    // db query
+    deleteId := model.DeleteItem(db,id)
+
+    // responce
+    c.IndentedJSON(http.StatusCreated, deleteId)
 }
 
 
-func SearchItemByID(c *gin.Context) {
+func SearchItem(c *gin.Context) {
+    // q = title
     q := c.Query("q")
-    c.IndentedJSON(http.StatusNotFound, gin.H{"message": "search for " + q})
+
+    // connect database
+    db := database.Connect()
+    defer db.Close()
+
+    // db query
+    searchItem := model.SearchItem(db,q)
+
+    // responce
+    c.IndentedJSON(http.StatusCreated, searchItem)
 }
