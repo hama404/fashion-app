@@ -5,7 +5,7 @@ import (
     "database/sql"
 )
 
-var table = "item"
+var table = "Items"
 
 type Item struct {
     ID     string  `json:"id"`
