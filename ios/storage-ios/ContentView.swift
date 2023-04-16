@@ -10,16 +10,24 @@ import SwiftUI
 struct ContentView: View {
   var body: some View {
     TabView {
-      FirstView().tabItem {
-        Text("Command")
+      HomeView().tabItem {
+        Text("Bookmark")
+        Image(systemName: "house")
+      }
+      BookmarkView().tabItem {
+        Text("Bookmark")
+        Image(systemName: "bookmark")
+      }
+      BlankView(name: "Music Translate").tabItem {
+        Text("Music Translate")
         Image(systemName: "command")
       }
-      SecondView().tabItem {
-        Text("Shift")
+      BlankView(name: "Guitar Code").tabItem {
+        Text("Guitar Code")
         Image(systemName: "shift")
       }
-      ThirdView().tabItem {
-        Text("Option")
+      BlankView(name: "Musical Score").tabItem {
+        Text("Musical Score")
         Image(systemName: "option")
       }
     }

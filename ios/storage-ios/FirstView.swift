@@ -11,7 +11,7 @@ struct FirstView: View {
   @State private var isPresented: Bool = false
   var body: some View {
     NavigationStack {
-      
+
       NavigationLink {
         NextView()
       } label: {
@@ -19,12 +19,9 @@ struct FirstView: View {
           .navigationTitle("Home")
           .padding()
       }
-      
-      Button(action: {
-        isPresented = true //trueにしないと画面遷移されない
-      }) {
-        Text("NextViewへ")
-          .padding()
+
+      Button("NextViewへ") {
+        isPresented = true
       }
       .sheet(isPresented: $isPresented) { //フルスクリーンの画面遷移
         NextView()
