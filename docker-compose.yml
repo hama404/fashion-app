@@ -1,14 +1,14 @@
 version: "3.9"
 services:
   web:
-    build: ./app
+    build: ./api
     depends_on:
       - db
     env_file: .env
     ports:
       - "8080:8000"
     volumes:
-      - "./app/src:/app"
+      - "./api/src:/app"
   db:
     image: mysql:8.0.32
     env_file: .env
