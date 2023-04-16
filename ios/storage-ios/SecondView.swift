@@ -17,9 +17,8 @@ struct Item: Codable {
 struct SecondView: View {
   @State private var items = [Item]()
   @State private var name = ""
-  @State var isloading = true
+  @State var isloading = false
 
-  
   var body: some View {
     ZStack {
       NavigationStack {
@@ -76,6 +75,7 @@ struct SecondView: View {
         }
       } else {
         print("Fetch failed: \(error?.localizedDescription ?? "Unknown error")")
+        return
       }
     }.resume()
     

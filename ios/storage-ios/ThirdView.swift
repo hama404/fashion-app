@@ -59,6 +59,7 @@ struct ThirdView: View {
         guard let decodedResponse = try? decoder.decode([Item].self, from: data) else {
           return
         }
+        items = decodedResponse
       } else {
         message = "error!!"
         print("Fetch failed: \(error?.localizedDescription ?? "Unknown error")")

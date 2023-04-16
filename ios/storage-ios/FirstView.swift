@@ -11,56 +11,57 @@ struct FirstView: View {
   @State private var isPresented: Bool = false
   var body: some View {
     NavigationStack {
-
+      
       NavigationLink {
         NextView()
       } label: {
-          Text("Go Page")
+        Text("Go Page")
           .navigationTitle("Home")
           .padding()
       }
+      
       Button(action: {
-          isPresented = true //trueにしないと画面遷移されない
+        isPresented = true //trueにしないと画面遷移されない
       }) {
-          Text("NextViewへ")
+        Text("NextViewへ")
           .padding()
       }
       .sheet(isPresented: $isPresented) { //フルスクリーンの画面遷移
-          NextView()
+        NextView()
       }
     }
   }
 }
 
 struct NextView: View {
-    var body: some View {
-      VStack {
-        Image(systemName: "globe")
-          .imageScale(.large)
-          .foregroundColor(.accentColor)
-        Text("Connect My IphoneXs!")
-        Text("SecondView").font(.title)
-
-        NavigationStack {
-          NavigationLink {
-            NextView()
-          } label: {
-              Text("Go Page")
-          }
+  var body: some View {
+    VStack {
+      Image(systemName: "globe")
+        .imageScale(.large)
+        .foregroundColor(.accentColor)
+      Text("Connect My IphoneXs!")
+      Text("SecondView").font(.title)
+      
+      NavigationStack {
+        NavigationLink {
+          NextView()
+        } label: {
+          Text("Go Page")
         }
-        NavigationStack {
-          NavigationLink {
-            NextView()
-          } label: {
-              Text("Go Page")
-          }
+      }
+      NavigationStack {
+        NavigationLink {
+          NextView()
+        } label: {
+          Text("Go Page")
         }
-      }.padding()
-    }
+      }
+    }.padding()
+  }
 }
 
 struct FirstUIView_Previews: PreviewProvider {
-    static var previews: some View {
-      FirstView()
-    }
+  static var previews: some View {
+    FirstView()
+  }
 }
