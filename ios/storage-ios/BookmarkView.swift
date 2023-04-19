@@ -12,7 +12,7 @@ struct Item: Codable, Identifiable {
   var url: String?
   var title: String?
   var description: String?
-  var tag: String?
+  var name: String?
   var tag_id: Int?
 }
 
@@ -26,6 +26,8 @@ struct ItemInput: Codable {
 typealias Items = [Item]
 
 let itemsEndpoint = "https://fashion-app-z2zcp4g4ca-uw.a.run.app/api/v1/items/"
+//let itemsEndpoint = "https://localhost:8080/api/v1/items/"
+
 class ItemDownloader: ObservableObject {
   @Published var items: Items = [Item]()
   @Published var item: Item = Item()
@@ -137,11 +139,17 @@ struct BookmarkView: View {
         List(self.itemData.items) { item in
           NavigationLink(destination: BookmarkDetailView(itemid: item.id ?? 0)) {
             VStack(alignment: .leading) {
-              Text(item.title ?? "")
-                .font(.headline)
               HStack {
                 Text(String(item.id ?? 0))
+                Text(item.title ?? "")
+                  .font(.headline)
+              }
+              HStack {
+                Text(item.url ?? "")
+              }
+              HStack {
                 Text(item.description ?? "")
+                Text(item.name ?? "nil")
               }
             }
           }
@@ -253,17 +261,19 @@ struct BookmarkDetailView: View {
           Text("url : ")
           Text(self.itemData.item.url ?? "")
         }
-        HStack {
-          Text("title : ")
-          Text(self.itemData.item.title ?? "")
-        }
-        HStack {
-          Text("description : ")
-          Text(self.itemData.item.description ?? "")
-        }
+        VStack {
+          HStack {
+            Text("title : ")
+            Text(self.itemData.item.title ?? "")
+          }
+          HStack {
+            Text("description : ")
+            Text(self.itemData.item.description ?? "")
+          }
+        }.padding()
         HStack {
           Text("tag : ")
-          Text(self.itemData.item.tag ?? "")
+          Text(self.itemData.item.name ?? "")
         }
         HStack {
           Text("tag id : ")
