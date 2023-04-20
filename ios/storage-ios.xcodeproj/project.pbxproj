@@ -17,6 +17,10 @@
 		0F2A497629E922A700DCC65C /* BookmarkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F2A497529E922A700DCC65C /* BookmarkView.swift */; };
 		0F589BF229EBFA0900776313 /* BlankView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F589BF129EBFA0900776313 /* BlankView.swift */; };
 		0F84D01929EC6476001C9DB5 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F84D01829EC6476001C9DB5 /* HomeView.swift */; };
+		0F8E66EE29F19DC0000A2D26 /* BookmarkModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8E66ED29F19DC0000A2D26 /* BookmarkModel.swift */; };
+		0F8E66F029F19E4E000A2D26 /* TagModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8E66EF29F19E4E000A2D26 /* TagModel.swift */; };
+		0F8E66F229F1B221000A2D26 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8E66F129F1B221000A2D26 /* File.swift */; };
+		0F8E66F329F1B221000A2D26 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F8E66F129F1B221000A2D26 /* File.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +60,9 @@
 		0F2A497529E922A700DCC65C /* BookmarkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkView.swift; sourceTree = "<group>"; };
 		0F589BF129EBFA0900776313 /* BlankView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlankView.swift; sourceTree = "<group>"; };
 		0F84D01829EC6476001C9DB5 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		0F8E66ED29F19DC0000A2D26 /* BookmarkModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkModel.swift; sourceTree = "<group>"; };
+		0F8E66EF29F19E4E000A2D26 /* TagModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagModel.swift; sourceTree = "<group>"; };
+		0F8E66F129F1B221000A2D26 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,8 +119,11 @@
 				0F589BF129EBFA0900776313 /* BlankView.swift */,
 				0F84D01829EC6476001C9DB5 /* HomeView.swift */,
 				0F2A497529E922A700DCC65C /* BookmarkView.swift */,
+				0F8E66ED29F19DC0000A2D26 /* BookmarkModel.swift */,
+				0F8E66EF29F19E4E000A2D26 /* TagModel.swift */,
 				0F2A496929E7145600DCC65C /* Assets.xcassets */,
 				0F2A496B29E7145600DCC65C /* Preview Content */,
+				0F8E66F129F1B221000A2D26 /* File.swift */,
 			);
 			path = "storage-ios";
 			sourceTree = "<group>";
@@ -228,6 +238,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0F0C572129EBE06A007C003A /* ShareViewController.swift in Sources */,
+				0F8E66F329F1B221000A2D26 /* File.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,8 +247,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				0F2A496829E7145000DCC65C /* ContentView.swift in Sources */,
+				0F8E66EE29F19DC0000A2D26 /* BookmarkModel.swift in Sources */,
+				0F8E66F029F19E4E000A2D26 /* TagModel.swift in Sources */,
 				0F589BF229EBFA0900776313 /* BlankView.swift in Sources */,
 				0F84D01929EC6476001C9DB5 /* HomeView.swift in Sources */,
+				0F8E66F229F1B221000A2D26 /* File.swift in Sources */,
 				0F2A497629E922A700DCC65C /* BookmarkView.swift in Sources */,
 				0F2A496629E7145000DCC65C /* storage_iosApp.swift in Sources */,
 			);

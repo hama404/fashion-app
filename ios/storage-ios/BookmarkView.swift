@@ -7,127 +7,8 @@
 
 import SwiftUI
 
-struct Item: Codable, Identifiable {
-  var id: Int?
-  var url: String?
-  var title: String?
-  var description: String?
-  var name: String?
-  var tag_id: Int?
-}
-
-struct ItemInput: Codable {
-  var url: String?
-  var title: String?
-  var description: String?
-  var tag_id: String?
-}
-
-typealias Items = [Item]
-
-let itemsEndpoint = "https://fashion-app-z2zcp4g4ca-uw.a.run.app/api/v1/items/"
-//let itemsEndpoint = "https://localhost:8080/api/v1/items/"
-
-class ItemDownloader: ObservableObject {
-  @Published var items: Items = [Item]()
-  @Published var item: Item = Item()
-
-  init() {
-    print("call observable init!")
-  }
-  
-  func fetchItem() {
-    print("call fetch event!")
-    guard let url = URL(string: itemsEndpoint) else {return}
-    let task = URLSession.shared.dataTask(with: url){(data,response,error) in
-      do{
-        guard let data = data else{return}
-        let items = try JSONDecoder().decode(Items.self,from: data)
-        DispatchQueue.main.async {
-          self.items = items
-        }
-      }catch{
-        print("error")
-      }
-    }
-    task.resume()
-  }
-  
-  func createItem(newdata: Item) {
-    print("call create event!!")
-    guard let url = URL(string: itemsEndpoint) else {return}
-    guard let httpBody = try? JSONEncoder().encode(newdata) else {return}
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST"
-    request.setValue("Application/json", forHTTPHeaderField: "Content-Type")
-//    request.setValue("Basic \(authBase64)", forHTTPHeaderField: "Authorization")
-    request.httpBody = httpBody
-
-    let task = URLSession.shared.dataTask(with: request) { data, response, error in
-      if let data = data {
-        let decoder = JSONDecoder()
-        guard let decodedResponse = try? decoder.decode(Item.self, from: data) else {
-          print("decoder error")
-          return
-        }
-        self.item = decodedResponse
-      } else {
-        print("Fetch failed: \(error?.localizedDescription ?? "Unknown error")")
-      }
-    }
-    task.resume()
-  }
-  
-  func fetchDetailItem(itemid: Int) {
-    let itemdetailEndpoint = itemsEndpoint + String(itemid)
-    guard let url = URL(string: itemdetailEndpoint) else {return}
-    let request = URLRequest(url: url)
-
-    let task = URLSession.shared.dataTask(with: request) { data, response, error in
-      if let data = data {
-        let decoder = JSONDecoder()
-        guard let decodedResponse = try? decoder.decode(Item.self, from: data) else {
-          print("decode error in detail !")
-          return
-        }
-        DispatchQueue.main.async {
-          self.item = decodedResponse
-        }
-      } else {
-        print("Fetch failed: \(error?.localizedDescription ?? "Unknown error")")
-        return
-      }
-    }
-    task.resume()
-  }
-  
-  func deleteItem(itemid: Int) {
-    let itemdetailEndpoint = itemsEndpoint + String(itemid)
-    guard let url = URL(string: itemdetailEndpoint) else {return}
-    var request = URLRequest(url: url)
-    request.httpMethod = "DELETE"
-
-    let task = URLSession.shared.dataTask(with: request) { data, response, error in
-      if let data = data {
-        let decoder = JSONDecoder()
-        guard let decodedResponse = try? decoder.decode(Item.self, from: data) else {
-          print("decode error in detail !")
-          return
-        }
-        DispatchQueue.main.async {
-          self.item = decodedResponse
-        }
-      } else {
-        print("Fetch failed: \(error?.localizedDescription ?? "Unknown error")")
-        return
-      }
-    }
-    task.resume()
-  }
-}
-
 struct BookmarkView: View {
-  @ObservedObject var itemData = ItemDownloader()
+  @ObservedObject var itemData = BookmarksDownloader()
   @State private var name = ""
   @State var isloading = false
   @State var isShowCreate = false
@@ -200,8 +81,9 @@ struct BookmarkView: View {
 }
 
 struct CreateView: View {
-  @ObservedObject var itemData = ItemDownloader()
-  @State private var input = ItemInput(
+  @ObservedObject var itemData = BookmarksDownloader()
+  @ObservedObject var tagData = TagsDownloader()
+  @State private var input = BookmarkInput(
     url: "hoge",
     title: "huga",
     description: "foooo",
@@ -218,16 +100,25 @@ struct CreateView: View {
           .textFieldStyle(RoundedBorderTextFieldStyle())
         TextField("description...", text: Binding($input.description)!)
           .textFieldStyle(RoundedBorderTextFieldStyle())
-        TextField("tagid...", text: Binding($input.tag_id)!)
-          .textFieldStyle(RoundedBorderTextFieldStyle())
+        Picker("tag", selection: Binding($input.tag_id)!) {
+          ForEach(self.tagData.tags, id: \.self) { tag in
+            Text(tag.name ?? "").tag(String(tag.id ?? 0))
+          }
+        }
         Button("Create") { createData() }
         Text("message: \(message)")
       }.navigationBarTitle("CreateView")
     }
+    .onAppear(perform: loadData)
+  }
+  
+  func loadData() {
+    self.tagData.fetchTag()
+    print(self.tagData.tags)
   }
   
   func createData() {
-    let newdata: Item = .init(
+    let newdata: Bookmark = .init(
       url: input.url,
       title: input.title,
       description: input.description,
@@ -235,7 +126,7 @@ struct CreateView: View {
     )
     
     self.itemData.createItem(newdata: newdata)
-
+    
     message = "success!!"
     input.url = ""
     input.title = ""
@@ -246,10 +137,11 @@ struct CreateView: View {
 
 struct BookmarkDetailView: View {
   @Environment(\.presentationMode) var presentation
-  @ObservedObject var itemData = ItemDownloader()
+  @ObservedObject var itemData = BookmarksDownloader()
   @State var isShowAlert = false
+  @State var isShowConfirm = false
   var itemid: Int
-
+  
   var body: some View {
     NavigationStack {
       VStack(alignment: .leading) {
@@ -283,7 +175,7 @@ struct BookmarkDetailView: View {
       .navigationTitle(self.itemData.item.title ?? "")
       .toolbar {
         ToolbarItem(placement: .navigationBarTrailing) {
-          Button { deleteData() } label: {
+          Button { isShowConfirm = true } label: {
             Image(systemName: "trash")
           }
         }
@@ -298,13 +190,25 @@ struct BookmarkDetailView: View {
     .alert(isPresented: $isShowAlert) {
       Alert(title: Text("comming soon ..."))
     }
+    .alert(isPresented: $isShowConfirm) {
+        Alert(title: Text("Warning!!"),
+              message: Text("Delete this Data??"),
+              primaryButton: .cancel(Text("Cansel")),
+              secondaryButton: .destructive(
+                Text("Delete"),
+                action: {
+                  deleteData()
+                }
+              )
+        )
+    }
   }
   
   func getDetailData() {
     print("call detail item !!")
     self.itemData.fetchDetailItem(itemid: itemid)
   }
-
+  
   func deleteData() {
     print("call delete item !!")
     self.itemData.deleteItem(itemid: itemid)
