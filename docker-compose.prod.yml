@@ -1,16 +1,17 @@
 version: "3.9"
 services:
-  web:
+  web-prod:
     build:
       context: ./api
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     depends_on:
       - db
     env_file: .env
+    environment:
+      - GIN_MODE=release
     ports:
       - "8080:8000"
-    volumes:
-      - "./api/src:/app"
+    tty: true
   db:
     image: mysql:8.0.32
     env_file: .env

@@ -7,42 +7,40 @@
 
 import SwiftUI
 
-struct Item: Codable {
-  var id: String?
-  var title: String?
-  var artist: String?
-  var Price: Int?
-}
-
 struct BookmarkView: View {
-  @State private var items = [Item]()
+  @ObservedObject var itemData = BookmarksDownloader()
   @State private var name = ""
   @State var isloading = false
   @State var isShowCreate = false
   @State var isShowAlert = false
-
+  
   var body: some View {
     ZStack {
       NavigationStack {
-        List(items, id: \.id) { item in
-          NavigationLink(destination: BlankView()) {
+        List(self.itemData.items) { item in
+          NavigationLink(destination: BookmarkDetailView(itemid: item.id ?? 0)) {
             VStack(alignment: .leading) {
-              Text(item.title ?? "")
-                .font(.headline)
               HStack {
-                Text(item.id ?? "")
-                Text(item.artist ?? "")
+                Text(String(item.id ?? 0))
+                Text(item.title ?? "")
+                  .font(.headline)
+              }
+              HStack {
+                Text(item.url ?? "")
+              }
+              HStack {
+                Text(item.description ?? "")
+                Text(item.name ?? "nil")
               }
             }
           }
         }
-        .navigationTitle("Items (\(items.count))")
-        .toolbar{
+        .navigationTitle("Bookmarks (\(itemData.items.count))")
+        .toolbar {
           ToolbarItem(placement: .navigationBarLeading) {
-            Button { loadData() } label: {
+            Button { self.itemData.fetchItem() } label: {
               Image(systemName: "arrow.clockwise")
             }
-
           }
           ToolbarItem(placement: .navigationBarTrailing) {
             Menu {
@@ -76,99 +74,145 @@ struct BookmarkView: View {
   }
   
   func loadData() {
-    print("call loadData !")
     isloading = true
-    
-    guard let url = URL(string: "https://fashion-app-z2zcp4g4ca-uw.a.run.app/api/v1/items") else {
-      return
-    }
-    let request = URLRequest(url: url)
-    
-    URLSession.shared.dataTask(with: request) { data, response, error in
-      if let data = data {
-        let decoder = JSONDecoder()
-        guard let decodedResponse = try? decoder.decode([Item].self, from: data) else {
-          print("decode error !")
-          return
-        }
-        DispatchQueue.main.async {
-          items = decodedResponse
-        }
-      } else {
-        print("Fetch failed: \(error?.localizedDescription ?? "Unknown error")")
-        return
-      }
-    }.resume()
-    
+    self.itemData.fetchItem()
     isloading = false
   }
 }
 
 struct CreateView: View {
-  @State private var items = [Item]()
+  @ObservedObject var itemData = BookmarksDownloader()
+  @ObservedObject var tagData = TagsDownloader()
+  @State private var input = BookmarkInput(
+    url: "hoge",
+    title: "huga",
+    description: "foooo",
+    tag_id: "3"
+  )
   @State private var message = "none"
-  @State private var id = "7"
-  @State private var title = "hoge"
-  @State private var artist = "huuuu"
-  @State private var price = "9928"
   
   var body: some View {
     NavigationStack {
       Form {
-        TextField("id...", text: $id)
+        TextField("url...", text: Binding($input.url)!)
           .textFieldStyle(RoundedBorderTextFieldStyle())
-        TextField("title...", text: $title)
+        TextField("title...", text: Binding($input.title)!)
           .textFieldStyle(RoundedBorderTextFieldStyle())
-        TextField("artist...", text: $artist)
+        TextField("description...", text: Binding($input.description)!)
           .textFieldStyle(RoundedBorderTextFieldStyle())
-        TextField("price...", text: $price)
-          .textFieldStyle(RoundedBorderTextFieldStyle())
+        Picker("tag", selection: Binding($input.tag_id)!) {
+          ForEach(self.tagData.tags, id: \.self) { tag in
+            Text(tag.name ?? "").tag(String(tag.id ?? 0))
+          }
+        }
         Button("Create") { createData() }
         Text("message: \(message)")
       }.navigationBarTitle("CreateView")
     }
+    .onAppear(perform: loadData)
+  }
+  
+  func loadData() {
+    self.tagData.fetchTag()
+    print(self.tagData.tags)
   }
   
   func createData() {
-    let newdata: Item = .init(
-      id: id,
-      title: title,
-      artist: artist,
-      Price: Int(price)
+    let newdata: Bookmark = .init(
+      url: input.url,
+      title: input.title,
+      description: input.description,
+      tag_id: Int(input.tag_id ?? "0")
     )
     
-    guard let url = URL(string: "https://fashion-app-z2zcp4g4ca-uw.a.run.app/api/v1/items") else {
-      return
-    }
-    guard let httpBody = try? JSONEncoder().encode(newdata) else {
-      return
-    }
-    
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST"
-    request.setValue("Application/json", forHTTPHeaderField: "Content-Type")
-    //    request.setValue("Basic \(authBase64)", forHTTPHeaderField: "Authorization")
-    request.httpBody = httpBody
-    
-    let task = URLSession.shared.dataTask(with: request) { data, response, error in
-      if let data = data {
-        let decoder = JSONDecoder()
-        guard let decodedResponse = try? decoder.decode([Item].self, from: data) else {
-          return
-        }
-        items = decodedResponse
-      } else {
-        message = "error!!"
-        print("Fetch failed: \(error?.localizedDescription ?? "Unknown error")")
-      }
-    }
-    task.resume()
+    self.itemData.createItem(newdata: newdata)
     
     message = "success!!"
-    id = String(Int(id) ?? 0 + 1)
-    title = ""
-    artist = ""
-    price = ""
+    input.url = ""
+    input.title = ""
+    input.description = ""
+    input.tag_id = ""
+  }
+}
+
+struct BookmarkDetailView: View {
+  @Environment(\.presentationMode) var presentation
+  @ObservedObject var itemData = BookmarksDownloader()
+  @State var isShowAlert = false
+  @State var isShowConfirm = false
+  var itemid: Int
+  
+  var body: some View {
+    NavigationStack {
+      VStack(alignment: .leading) {
+        HStack {
+          Text("id : ")
+          Text(String(self.itemData.item.id ?? 0))
+        }
+        HStack {
+          Text("url : ")
+          Text(self.itemData.item.url ?? "")
+        }
+        VStack {
+          HStack {
+            Text("title : ")
+            Text(self.itemData.item.title ?? "")
+          }
+          HStack {
+            Text("description : ")
+            Text(self.itemData.item.description ?? "")
+          }
+        }.padding()
+        HStack {
+          Text("tag : ")
+          Text(self.itemData.item.name ?? "")
+        }
+        HStack {
+          Text("tag id : ")
+          Text(String(self.itemData.item.tag_id ?? 0))
+        }
+      }
+      .navigationTitle(self.itemData.item.title ?? "")
+      .toolbar {
+        ToolbarItem(placement: .navigationBarTrailing) {
+          Button { isShowConfirm = true } label: {
+            Image(systemName: "trash")
+          }
+        }
+        ToolbarItem(placement: .navigationBarTrailing) {
+          Button { isShowAlert = true } label: {
+            Image(systemName: "arrow.triangle.2.circlepath")
+          }
+        }
+      }
+    }
+    .onAppear(perform: getDetailData)
+    .alert(isPresented: $isShowAlert) {
+      Alert(title: Text("comming soon ..."))
+    }
+    .alert(isPresented: $isShowConfirm) {
+        Alert(title: Text("Warning!!"),
+              message: Text("Delete this Data??"),
+              primaryButton: .cancel(Text("Cansel")),
+              secondaryButton: .destructive(
+                Text("Delete"),
+                action: {
+                  deleteData()
+                }
+              )
+        )
+    }
+  }
+  
+  func getDetailData() {
+    print("call detail item !!")
+    self.itemData.fetchDetailItem(itemid: itemid)
+  }
+  
+  func deleteData() {
+    print("call delete item !!")
+    self.itemData.deleteItem(itemid: itemid)
+    self.presentation.wrappedValue.dismiss()
   }
 }
 
