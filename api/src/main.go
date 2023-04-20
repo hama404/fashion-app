@@ -9,8 +9,11 @@ import (
 
 func main() {
     router := gin.Default()
-
     api := router.Group("api/v1")
+
+    tags := api.Group("tags")
+    tags.GET("", controller.GetTags)
+
     items := api.Group("items")
     items.GET("", controller.GetItems)
     items.POST("", controller.PostItems)
