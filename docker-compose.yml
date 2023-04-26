@@ -17,10 +17,9 @@ services:
       context: ./front
       dockerfile: Dockerfile
     ports:
-      - "8081:8080"
+      - "3000:8080"
     volumes:
       - "./front:/app"
-    tty: true
 
   db:
     image: mysql:8.0.32
