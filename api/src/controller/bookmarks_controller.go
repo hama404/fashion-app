@@ -26,6 +26,9 @@ func GetItems(c *gin.Context) {
     }
 
     // responce
+    c.Header("Access-Control-Allow-Origin", "*")
+    c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+    c.Header("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
     c.IndentedJSON(http.StatusOK, lists)
 }
 
@@ -50,6 +53,9 @@ func PostItems(c *gin.Context) {
     list, err := model.SelectById(db, insertId)
 
     // responce
+    c.Header("Access-Control-Allow-Origin", "*")
+    c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+    c.Header("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
     c.IndentedJSON(http.StatusCreated, list)
 }
 
