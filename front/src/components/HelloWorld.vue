@@ -30,8 +30,10 @@
       <div><button type="button" @click="create">Create</button></div>
     </div>
     <h3>Bookmark Lists</h3>
-    <ul v-for="list in lists">
-      <li>{{ list.id }}: {{ list.url }}</li>
+    <ul>
+      <li v-for="list in lists" :key="list.id">
+        {{ list.id }}: {{ list.url }}
+      </li>
     </ul>
   </div>
 </template>
@@ -64,7 +66,7 @@ export default {
       return response
     })
 
-    const BaseURL = "/api/v1/items"
+    const BaseURL = "https://fashion-app-z2zcp4g4ca-uw.a.run.app/api/v1/items"
     axios.get(BaseURL)
       .then(response => {
         console.log({ response: response })
@@ -84,7 +86,7 @@ export default {
         return response
       })
 
-      const BaseURL = "/api/v1/items"
+      const BaseURL = "https://fashion-app-z2zcp4g4ca-uw.a.run.app/api/v1/items"
       const data = {
         url: this.url,
         title: this.title,
