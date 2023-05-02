@@ -5,6 +5,7 @@ module.exports = defineConfig({
     proxy: {
       "/api/": {
         target: "https://fashion-app-z2zcp4g4ca-uw.a.run.app",
+        logLevel: 'debug'
       }
     }
   }
