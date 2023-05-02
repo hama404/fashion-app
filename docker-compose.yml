@@ -11,6 +11,16 @@ services:
       - "8080:8000"
     volumes:
       - "./api/src:/app"
+
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    ports:
+      - "3000:8080"
+    volumes:
+      - "./front:/app"
+
   db:
     image: mysql:8.0.32
     env_file: .env
